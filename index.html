@@ -41,12 +41,16 @@
       max-width: 540px;
       background: var(--card-bg);
       backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--card-border);
       border-radius: 24px;
       padding: 28px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh;
     }
 
     .hidden { display: none !important; }
@@ -57,6 +61,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 24px;
+      flex-shrink: 0;
     }
 
     .brand h1 {
@@ -122,12 +127,44 @@
     .btn-danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
     .btn-danger:hover { background: var(--danger); color: white; }
 
-    .btn-google {
-      background: #ffffff;
-      color: #0f172a;
-      font-weight: 600;
-    }
+    .btn-google { background: #ffffff; color: #0f172a; font-weight: 600; }
     .btn-google:hover { background: #f1f5f9; }
+
+    /* Dashboard & Saved Chats */
+    .dashboard-scroll {
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+    
+    .dashboard-scroll::-webkit-scrollbar { width: 5px; }
+    .dashboard-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+    .saved-chats-header {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin: 20px 0 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .saved-chat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid var(--card-border);
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .saved-chat-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
 
     /* Admin Panel */
     .admin-badge {
@@ -149,6 +186,7 @@
       padding-bottom: 16px;
       border-bottom: 1px solid var(--card-border);
       margin-bottom: 16px;
+      flex-shrink: 0;
     }
 
     .code-pill {
@@ -161,7 +199,9 @@
       letter-spacing: 1px;
       cursor: pointer;
       border: 1px dashed var(--accent);
+      transition: all 0.2s;
     }
+    .code-pill:hover { background: rgba(99, 102, 241, 0.25); }
 
     .owner-bar {
       background: rgba(15, 23, 42, 0.8);
@@ -171,28 +211,32 @@
       margin-bottom: 16px;
       display: flex;
       gap: 8px;
+      flex-shrink: 0;
     }
 
     #chat-box {
-      height: 340px;
+      flex-grow: 1;
+      height: 350px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding-right: 6px;
+      gap: 12px;
+      padding-right: 8px;
       margin-bottom: 16px;
+      scroll-behavior: smooth;
     }
 
     #chat-box::-webkit-scrollbar { width: 5px; }
     #chat-box::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
 
     .msg {
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 0.9rem;
+      max-width: 82%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 0.95rem;
       line-height: 1.4;
       word-break: break-word;
+      position: relative;
     }
 
     .msg-mine {
@@ -212,9 +256,17 @@
 
     .msg-sender {
       font-size: 0.75rem;
-      color: var(--text-secondary);
+      color: #a5b4fc;
       margin-bottom: 4px;
       font-weight: 600;
+    }
+    
+    .msg-time {
+      font-size: 0.65rem;
+      opacity: 0.7;
+      margin-top: 6px;
+      text-align: right;
+      display: block;
     }
 
     .disabled-notice {
@@ -225,6 +277,11 @@
       border-radius: 12px;
       color: #fca5a5;
       font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    
+    #message-input-area {
+      flex-shrink: 0;
     }
 
     /* Dynamic Toast */
@@ -243,6 +300,7 @@
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.3s ease;
+      z-index: 100;
     }
     .toast.show { opacity: 1; }
   </style>
@@ -260,7 +318,7 @@
 
   <!-- LOGIN SECTION -->
   <div id="login-sec">
-    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.95rem;">
+    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5;">
       Real-time group chats made simple. Sign in to start or join a lab.
     </p>
     <button id="login-btn" class="btn btn-google">
@@ -270,16 +328,24 @@
   </div>
 
   <!-- DASHBOARD SECTION -->
-  <div id="dash-sec" class="hidden">
+  <div id="dash-sec" class="hidden dashboard-scroll">
     <!-- Admin Panel Badge -->
     <div id="admin-panel" class="admin-badge hidden">
       <h3>👑 System Owner Panel</h3>
       <p>Authorized access granted. You have system level admin controls.</p>
     </div>
 
-    <div style="margin-bottom: 20px;">
+    <div>
       <input type="text" id="join-code-input" placeholder="Enter 6-digit room code" maxlength="6" style="text-transform: uppercase;">
       <button id="join-chat-btn" class="btn btn-primary">Join Group Chat</button>
+    </div>
+
+    <!-- User's Saved Chats List -->
+    <div class="saved-chats-header">
+      <span>Your Saved Chats</span>
+    </div>
+    <div id="my-chats-list" style="margin-bottom: 24px;">
+      <!-- JavaScript will populate saved chats here -->
     </div>
 
     <div style="border-top: 1px solid var(--card-border); padding-top: 16px;">
@@ -289,7 +355,7 @@
   </div>
 
   <!-- CHAT ROOM SECTION -->
-  <div id="chat-sec" class="hidden">
+  <div id="chat-sec" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
     <div class="chat-header">
       <button id="leave-chat-btn" class="btn-secondary" style="padding: 6px 12px; border-radius: 10px; border:none; cursor:pointer;">← Back</button>
       <div style="display: flex; align-items: center; gap: 8px;">
@@ -342,6 +408,7 @@
   let currentChatId = null;
   let chatMetaUnsub = null;
   let chatMsgUnsub = null;
+  let userChatsUnsub = null;
 
   const ADMIN_EMAILS = [
     "jcruz016@stpaul.k12.mn.us",
@@ -356,13 +423,15 @@
     adminPanel: document.getElementById('admin-panel'),
     userBadge: document.getElementById('user-badge'),
     chatBox: document.getElementById('chat-box'),
+    myChatsList: document.getElementById('my-chats-list'),
     msgInput: document.getElementById('message-input'),
     ownerControls: document.getElementById('owner-controls'),
     toggleTextingBtn: document.getElementById('toggle-texting-btn'),
     textingDisabledMsg: document.getElementById('texting-disabled-msg'),
     msgInputArea: document.getElementById('message-input-area'),
     chatCodeDisplay: document.getElementById('current-chat-code'),
-    toast: document.getElementById('toast')
+    toast: document.getElementById('toast'),
+    joinInput: document.getElementById('join-code-input')
   };
 
   // --- AUTHENTICATION ---
@@ -370,7 +439,10 @@
     signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
   });
 
-  document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    if (userChatsUnsub) userChatsUnsub();
+    signOut(auth);
+  });
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -387,6 +459,9 @@
       } else {
         els.adminPanel.classList.add('hidden');
       }
+      
+      // Load user's saved chats
+      loadUserSavedChats();
     } else {
       currentUser = null;
       els.userBadge.classList.add('hidden');
@@ -397,34 +472,82 @@
   });
 
   // --- DASHBOARD ACTIONS ---
+  function loadUserSavedChats() {
+    if (userChatsUnsub) userChatsUnsub();
+    
+    userChatsUnsub = onValue(ref(db, `textylabs/users/${currentUser.uid}/chats`), (snapshot) => {
+      els.myChatsList.innerHTML = '';
+      if (!snapshot.exists()) {
+        els.myChatsList.innerHTML = '<p style="font-size:0.85rem; color: #64748b; text-align: center; padding: 10px;">No saved chats yet. Create or join one!</p>';
+        return;
+      }
+      
+      snapshot.forEach((childSnap) => {
+        const code = childSnap.key;
+        const div = document.createElement('div');
+        div.className = 'saved-chat-item';
+        div.innerHTML = `
+          <span style="font-weight: 600; color: var(--text-primary);">💬 Room: ${code}</span>
+          <span style="font-size: 0.8rem; color: var(--accent);">Join →</span>
+        `;
+        div.onclick = () => attemptJoinChat(code);
+        els.myChatsList.appendChild(div);
+      });
+    });
+  }
+
   document.getElementById('create-chat-btn').addEventListener('click', async () => {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    // Write directly into textylabs node matching Firebase rules
+    // Write directly into textylabs node
     await set(ref(db, `textylabs/chats/${code}/metadata`), {
       ownerUid: currentUser.uid,
       textingEnabled: true,
       createdAt: Date.now()
     });
+    
+    // Save to user's personal chat list
+    await set(ref(db, `textylabs/users/${currentUser.uid}/chats/${code}`), { joinedAt: Date.now() });
 
     joinChatRoom(code, { ownerUid: currentUser.uid, textingEnabled: true });
   });
 
-  document.getElementById('join-chat-btn').addEventListener('click', async () => {
-    const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+  document.getElementById('join-chat-btn').addEventListener('click', () => {
+    const code = els.joinInput.value.trim().toUpperCase();
     if (!code) return showToast("Enter a room code!");
-
-    const snap = await get(ref(db, `textylabs/chats/${code}/metadata`));
-    if (!snap.exists()) return showToast("Room not found!");
-
-    joinChatRoom(code, snap.val());
+    attemptJoinChat(code);
   });
+  
+  els.joinInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') document.getElementById('join-chat-btn').click();
+  });
+
+  async function attemptJoinChat(code) {
+    const snap = await get(ref(db, `textylabs/chats/${code}/metadata`));
+    if (!snap.exists()) {
+      showToast("Room not found or deleted!");
+      // Clean up dead room from user's list if it exists
+      remove(ref(db, `textylabs/users/${currentUser.uid}/chats/${code}`));
+      return;
+    }
+    
+    // Save to user's personal chat list (in case they joined manually via code)
+    await set(ref(db, `textylabs/users/${currentUser.uid}/chats/${code}`), { joinedAt: Date.now() });
+    
+    joinChatRoom(code, snap.val());
+  }
 
   // --- CHAT ROOM LOGIC ---
   function joinChatRoom(code, metadata) {
     currentChatId = code;
+    els.joinInput.value = ''; // Clear input for next time
+    
     els.dashSec.classList.add('hidden');
     els.chatSec.classList.remove('hidden');
+    
+    // Explicitly unhide chat-sec flex layout
+    els.chatSec.style.display = 'flex'; 
+    
     els.chatCodeDisplay.textContent = code;
     els.chatBox.innerHTML = '';
 
@@ -445,7 +568,7 @@
     chatMetaUnsub = onValue(ref(db, `textylabs/chats/${code}/metadata`), (snapshot) => {
       const data = snapshot.val();
       if (!data) {
-        showToast("Room was deleted.");
+        showToast("Room was deleted by the owner.");
         leaveChat();
         return;
       }
@@ -469,13 +592,19 @@
         const div = document.createElement('div');
         const isMe = msg.uid === currentUser.uid;
         
+        // Format timestamp
+        const date = new Date(msg.timestamp);
+        const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
         div.className = `msg ${isMe ? 'msg-mine' : 'msg-other'}`;
         div.innerHTML = `
-          ${!isMe ? `<div class="msg-sender">${msg.sender}</div>` : ''}
+          ${!isMe ? `<div class="msg-sender">${escapeHTML(msg.sender)}</div>` : ''}
           <div>${escapeHTML(msg.text)}</div>
+          <span class="msg-time">${timeStr}</span>
         `;
         els.chatBox.appendChild(div);
       });
+      // Smooth scroll to bottom
       els.chatBox.scrollTop = els.chatBox.scrollHeight;
     });
   }
@@ -495,6 +624,7 @@
       timestamp: Date.now()
     });
     els.msgInput.value = '';
+    els.msgInput.focus();
   }
 
   // Leave Chat
@@ -505,6 +635,7 @@
     if (chatMsgUnsub) chatMsgUnsub();
     currentChatId = null;
     els.chatSec.classList.add('hidden');
+    els.chatSec.style.display = 'none';
     els.dashSec.classList.remove('hidden');
   }
 
@@ -512,6 +643,8 @@
   document.getElementById('delete-chat-btn').addEventListener('click', async () => {
     if (confirm("Delete this group chat for everyone?")) {
       await remove(ref(db, `textylabs/chats/${currentChatId}`));
+      // Remove from user's personal list as well
+      await remove(ref(db, `textylabs/users/${currentUser.uid}/chats/${currentChatId}`));
       leaveChat();
     }
   });
