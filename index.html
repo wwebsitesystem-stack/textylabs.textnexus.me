@@ -10,173 +10,204 @@
   
   <style>
     :root {
-      --bg-main: #0b0f19;
-      --card-bg: rgba(22, 30, 49, 0.75);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --accent-glow: rgba(99, 102, 241, 0.35);
+      --bg-dark: #050505;
+      --glass-bg: rgba(20, 22, 31, 0.55);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --accent-1: #8b5cf6;
+      --accent-2: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.4);
       --danger: #ef4444;
-      --danger-hover: #dc2626;
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --msg-sent: #4f46e5;
-      --msg-received: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
 
     body {
-      background: radial-gradient(circle at top, #1e1b4b 0%, var(--bg-main) 60%);
-      color: var(--text-primary);
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 20px;
+      overflow: hidden;
+    }
+
+    /* Ambient Background Glow */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: url('https://grainy-gradients.vercel.app/noise.svg');
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
     }
 
     .app-container {
       width: 100%;
-      max-width: 540px;
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      max-width: 520px;
+      height: 85vh;
+      max-height: 800px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border);
+      border-radius: 32px;
+      padding: 32px;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       position: relative;
-      overflow: hidden;
+      z-index: 1;
       display: flex;
       flex-direction: column;
-      max-height: 90vh;
     }
 
     .hidden { display: none !important; }
 
-    /* Typography & Headers */
+    /* Animations */
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .view-section {
+      animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      height: 100%;
+    }
+
+    /* Header */
     .brand {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
       flex-shrink: 0;
     }
 
     .brand h1 {
-      font-size: 1.6rem;
+      font-size: 1.75rem;
       font-weight: 700;
-      background: linear-gradient(135deg, #a5b4fc, #6366f1);
+      background: linear-gradient(135deg, #c4b5fd, #818cf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      letter-spacing: -0.5px;
     }
 
     .user-pill {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      background: rgba(255, 255, 255, 0.05);
-      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 8px 14px;
       border-radius: 20px;
-      border: 1px solid var(--card-border);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    /* Form Inputs & Buttons */
+    /* Forms & Buttons */
     input {
       width: 100%;
-      padding: 14px 18px;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      color: var(--text-primary);
-      font-size: 0.95rem;
+      padding: 16px 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      color: var(--text-main);
+      font-size: 1rem;
       outline: none;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       margin-bottom: 12px;
     }
-
+    input::placeholder { color: #64748b; }
     input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: rgba(0, 0, 0, 0.4);
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
     }
 
     .btn {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       border: none;
-      border-radius: 14px;
+      border-radius: 16px;
       font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
+    }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary { 
+      background: linear-gradient(135deg, var(--accent-2), var(--accent-1)); 
+      color: white; 
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25);
+    }
+    .btn-primary:hover { 
+      box-shadow: 0 12px 25px rgba(99, 102, 241, 0.4); 
+      filter: brightness(1.1);
     }
 
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 8px 20px var(--accent-glow); }
-    
-    .btn-secondary { background: rgba(255, 255, 255, 0.08); color: var(--text-primary); margin-top: 8px;}
-    .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+    .btn-secondary { background: rgba(255, 255, 255, 0.05); color: var(--text-main); margin-top: 8px; border: 1px solid transparent;}
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.1); }
 
-    .btn-danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-danger { background: rgba(239, 68, 68, 0.1); color: #fca5a5; }
     .btn-danger:hover { background: var(--danger); color: white; }
 
-    .btn-google { background: #ffffff; color: #0f172a; font-weight: 600; }
-    .btn-google:hover { background: #f1f5f9; }
+    .btn-google { background: #ffffff; color: #0f172a; }
+    .btn-google:hover { background: #f8fafc; box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1); }
 
-    /* Dashboard & Saved Chats */
-    .dashboard-scroll {
-      overflow-y: auto;
-      padding-right: 6px;
-    }
-    
-    .dashboard-scroll::-webkit-scrollbar { width: 5px; }
+    /* Dashboard Areas */
+    .dashboard-scroll { overflow-y: auto; padding-right: 6px; flex-grow: 1; margin-bottom: 20px;}
+    .dashboard-scroll::-webkit-scrollbar { width: 4px; }
     .dashboard-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
 
     .saved-chats-header {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin: 20px 0 10px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin: 24px 0 12px 0;
+      font-weight: 700;
     }
 
     .saved-chat-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(15, 23, 42, 0.4);
-      border: 1px solid var(--card-border);
-      padding: 12px 16px;
-      border-radius: 12px;
-      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 16px 20px;
+      border-radius: 16px;
+      margin-bottom: 10px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
-
     .saved-chat-item:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateX(4px);
     }
 
-    /* Admin Panel */
+    /* Admin Badge */
     .admin-badge {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.25));
-      border: 1px solid rgba(245, 158, 11, 0.4);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.15));
+      border: 1px solid rgba(245, 158, 11, 0.2);
       padding: 16px;
       border-radius: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
-
-    .admin-badge h3 { font-size: 0.9rem; color: #fbbf24; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-    .admin-badge p { font-size: 0.8rem; color: #fef3c7; }
+    .admin-badge h3 { font-size: 0.9rem; color: #fbbf24; margin-bottom: 4px; }
+    .admin-badge p { font-size: 0.8rem; color: rgba(251, 191, 36, 0.8); }
 
     /* Chat Room Interface */
     .chat-header {
@@ -184,125 +215,120 @@
       align-items: center;
       justify-content: space-between;
       padding-bottom: 16px;
-      border-bottom: 1px solid var(--card-border);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
       margin-bottom: 16px;
       flex-shrink: 0;
     }
 
     .code-pill {
-      background: rgba(99, 102, 241, 0.15);
-      color: #a5b4fc;
+      background: rgba(139, 92, 246, 0.15);
+      color: #c4b5fd;
       padding: 6px 12px;
-      border-radius: 8px;
+      border-radius: 10px;
       font-family: monospace;
       font-weight: 700;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
       cursor: pointer;
-      border: 1px dashed var(--accent);
       transition: all 0.2s;
     }
-    .code-pill:hover { background: rgba(99, 102, 241, 0.25); }
+    .code-pill:hover { background: rgba(139, 92, 246, 0.3); }
 
     .owner-bar {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--card-border);
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       padding: 12px;
-      border-radius: 14px;
+      border-radius: 16px;
       margin-bottom: 16px;
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-shrink: 0;
     }
 
     #chat-box {
       flex-grow: 1;
-      height: 350px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
       padding-right: 8px;
       margin-bottom: 16px;
       scroll-behavior: smooth;
     }
-
-    #chat-box::-webkit-scrollbar { width: 5px; }
+    #chat-box::-webkit-scrollbar { width: 4px; }
     #chat-box::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
 
+    /* Chat Bubbles */
     .msg {
-      max-width: 82%;
-      padding: 12px 16px;
-      border-radius: 18px;
+      max-width: 80%;
+      padding: 14px 18px;
       font-size: 0.95rem;
-      line-height: 1.4;
+      line-height: 1.5;
       word-break: break-word;
       position: relative;
+      animation: slideUpFade 0.3s ease-out forwards;
     }
 
     .msg-mine {
       align-self: flex-end;
-      background: var(--msg-sent);
+      background: linear-gradient(135deg, var(--accent-2), var(--accent-1));
       color: white;
-      border-bottom-right-radius: 4px;
+      border-radius: 20px 20px 4px 20px;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
     }
 
     .msg-other {
       align-self: flex-start;
-      background: var(--msg-received);
-      border: 1px solid var(--card-border);
-      color: var(--text-primary);
-      border-bottom-left-radius: 4px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border-radius: 20px 20px 20px 4px;
     }
 
-    .msg-sender {
-      font-size: 0.75rem;
-      color: #a5b4fc;
-      margin-bottom: 4px;
-      font-weight: 600;
+    .msg-sender { font-size: 0.75rem; color: #a5b4fc; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.5px;}
+    .msg-time { font-size: 0.65rem; opacity: 0.6; margin-top: 8px; text-align: right; display: block; }
+
+    #message-input-area {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+      background: rgba(0,0,0,0.2);
+      padding: 8px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
     }
-    
-    .msg-time {
-      font-size: 0.65rem;
-      opacity: 0.7;
-      margin-top: 6px;
-      text-align: right;
-      display: block;
-    }
+    #message-input-area input { margin: 0; background: transparent; border: none; box-shadow: none; padding: 12px 16px;}
+    #message-input-area .btn { width: auto; padding: 0 24px; border-radius: 14px; }
 
     .disabled-notice {
       text-align: center;
-      padding: 12px;
+      padding: 16px;
       background: rgba(239, 68, 68, 0.1);
       border: 1px solid rgba(239, 68, 68, 0.2);
-      border-radius: 12px;
+      border-radius: 16px;
       color: #fca5a5;
-      font-size: 0.85rem;
-      flex-shrink: 0;
-    }
-    
-    #message-input-area {
+      font-size: 0.9rem;
       flex-shrink: 0;
     }
 
-    /* Dynamic Toast */
+    /* Toast */
     .toast {
       position: absolute;
-      top: 16px;
+      top: 24px;
       left: 50%;
-      transform: translateX(-50%);
-      background: var(--accent);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      transform: translateX(-50%) translateY(-20px);
+      background: var(--text-main);
+      color: var(--bg-dark);
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 100;
     }
-    .toast.show { opacity: 1; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
@@ -310,75 +336,77 @@
 <div class="app-container">
   <div id="toast" class="toast">Code copied!</div>
 
-  <!-- App Header -->
+  <!-- Header -->
   <div class="brand">
     <h1>TextyLabs 🧪</h1>
     <div id="user-badge" class="user-pill hidden"></div>
   </div>
 
   <!-- LOGIN SECTION -->
-  <div id="login-sec">
-    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5;">
-      Real-time group chats made simple. Sign in to start or join a lab.
-    </p>
-    <button id="login-btn" class="btn btn-google">
-      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-      Sign in with Google
-    </button>
+  <div id="login-sec" class="view-section" style="justify-content: center; align-items: center; text-align: center;">
+    <div style="background: rgba(255,255,255,0.03); padding: 32px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); width: 100%;">
+      <h2 style="font-size: 1.4rem; margin-bottom: 12px; font-weight: 600;">Welcome to the Lab</h2>
+      <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 0.95rem; line-height: 1.6;">
+        Real-time, secure group spaces.<br>Sign in to connect.
+      </p>
+      <button id="login-btn" class="btn btn-google">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        Continue with Google
+      </button>
+    </div>
   </div>
 
   <!-- DASHBOARD SECTION -->
-  <div id="dash-sec" class="hidden dashboard-scroll">
-    <!-- Admin Panel Badge -->
-    <div id="admin-panel" class="admin-badge hidden">
-      <h3>👑 System Owner Panel</h3>
-      <p>Authorized access granted. You have system level admin controls.</p>
+  <div id="dash-sec" class="hidden view-section">
+    <div class="dashboard-scroll">
+      <!-- Admin Panel Badge -->
+      <div id="admin-panel" class="admin-badge hidden">
+        <h3>👑 System Owner Panel</h3>
+        <p>Authorized access. You have system level admin controls.</p>
+      </div>
+
+      <div style="background: rgba(0,0,0,0.15); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03); margin-bottom: 24px;">
+        <input type="text" id="join-code-input" placeholder="Enter 6-digit room code" maxlength="6" style="text-transform: uppercase; text-align: center; font-size: 1.1rem; letter-spacing: 2px; font-weight: 600;">
+        <button id="join-chat-btn" class="btn btn-primary" style="box-shadow: none;">Join Room</button>
+      </div>
+
+      <div class="saved-chats-header">Your Rooms</div>
+      <div id="my-chats-list"></div>
     </div>
 
-    <div>
-      <input type="text" id="join-code-input" placeholder="Enter 6-digit room code" maxlength="6" style="text-transform: uppercase;">
-      <button id="join-chat-btn" class="btn btn-primary">Join Group Chat</button>
-    </div>
-
-    <!-- User's Saved Chats List -->
-    <div class="saved-chats-header">
-      <span>Your Saved Chats</span>
-    </div>
-    <div id="my-chats-list" style="margin-bottom: 24px;">
-      <!-- JavaScript will populate saved chats here -->
-    </div>
-
-    <div style="border-top: 1px solid var(--card-border); padding-top: 16px;">
-      <button id="create-chat-btn" class="btn btn-secondary">⚡ Create New Group Chat</button>
-      <button id="logout-btn" class="btn btn-secondary" style="color: #fca5a5;">Logout</button>
+    <div style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;">
+      <button id="create-chat-btn" class="btn btn-secondary">⚡ Create New Room</button>
+      <button id="logout-btn" class="btn btn-secondary" style="color: #64748b; font-size: 0.85rem; padding: 12px; background: transparent;">Sign Out</button>
     </div>
   </div>
 
   <!-- CHAT ROOM SECTION -->
-  <div id="chat-sec" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
+  <div id="chat-sec" class="hidden view-section">
     <div class="chat-header">
-      <button id="leave-chat-btn" class="btn-secondary" style="padding: 6px 12px; border-radius: 10px; border:none; cursor:pointer;">← Back</button>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 0.85rem; color: var(--text-secondary);">Code:</span>
+      <button id="leave-chat-btn" class="btn-secondary" style="margin:0; width:auto; padding: 8px 16px; border-radius: 12px; font-size: 0.85rem;">← Leave</button>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">ROOM ID</span>
         <span id="current-chat-code" class="code-pill" title="Click to copy">------</span>
       </div>
     </div>
 
     <!-- Owner Only Controls -->
     <div id="owner-controls" class="owner-bar hidden">
-      <button id="toggle-texting-btn" class="btn btn-secondary" style="margin: 0; font-size: 0.8rem; padding: 8px;">Disable Chat</button>
-      <button id="delete-chat-btn" class="btn btn-danger" style="margin: 0; font-size: 0.8rem; padding: 8px;">Delete Room</button>
+      <button id="toggle-texting-btn" class="btn btn-secondary" style="margin: 0; font-size: 0.8rem; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.05);">Disable Chat</button>
+      <button id="delete-chat-btn" class="btn btn-danger" style="margin: 0; font-size: 0.8rem; padding: 10px; border-radius: 10px;">Delete Room</button>
     </div>
 
     <div id="chat-box"></div>
 
     <div id="texting-disabled-msg" class="disabled-notice hidden">
-      🚫 The chat owner has disabled messaging.
+      🔒 The chat owner has paused messaging.
     </div>
 
-    <div id="message-input-area" style="display: flex; gap: 8px;">
-      <input type="text" id="message-input" placeholder="Type a message..." style="margin: 0;">
-      <button id="send-btn" class="btn btn-primary" style="width: auto; padding: 0 20px;">Send</button>
+    <div id="message-input-area">
+      <input type="text" id="message-input" placeholder="Message..." autocomplete="off">
+      <button id="send-btn" class="btn btn-primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
     </div>
   </div>
 
@@ -434,6 +462,13 @@
     joinInput: document.getElementById('join-code-input')
   };
 
+  function switchView(viewToShow) {
+    els.loginSec.classList.add('hidden');
+    els.dashSec.classList.add('hidden');
+    els.chatSec.classList.add('hidden');
+    viewToShow.classList.remove('hidden');
+  }
+
   // --- AUTHENTICATION ---
   document.getElementById('login-btn').addEventListener('click', () => {
     signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
@@ -444,15 +479,21 @@
     signOut(auth);
   });
 
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
+      // BAN CHECK (Integrates logic from previous admin panel)
+      const banSnap = await get(ref(db, `textylabs/banned/${user.uid}`));
+      if (banSnap.exists() && banSnap.val() === true) {
+        alert("Your account has been permanently banned from TextyLabs.");
+        signOut(auth);
+        return; 
+      }
+
       currentUser = user;
-      els.userBadge.textContent = user.displayName;
+      els.userBadge.textContent = user.displayName.split(' ')[0]; // Just show first name
       els.userBadge.classList.remove('hidden');
       
-      els.loginSec.classList.add('hidden');
-      els.dashSec.classList.remove('hidden');
-      els.chatSec.classList.add('hidden');
+      switchView(els.dashSec);
 
       if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
         els.adminPanel.classList.remove('hidden');
@@ -460,14 +501,11 @@
         els.adminPanel.classList.add('hidden');
       }
       
-      // Load user's saved chats
       loadUserSavedChats();
     } else {
       currentUser = null;
       els.userBadge.classList.add('hidden');
-      els.loginSec.classList.remove('hidden');
-      els.dashSec.classList.add('hidden');
-      els.chatSec.classList.add('hidden');
+      switchView(els.loginSec);
     }
   });
 
@@ -478,7 +516,7 @@
     userChatsUnsub = onValue(ref(db, `textylabs/users/${currentUser.uid}/chats`), (snapshot) => {
       els.myChatsList.innerHTML = '';
       if (!snapshot.exists()) {
-        els.myChatsList.innerHTML = '<p style="font-size:0.85rem; color: #64748b; text-align: center; padding: 10px;">No saved chats yet. Create or join one!</p>';
+        els.myChatsList.innerHTML = '<p style="font-size:0.85rem; color: #64748b; text-align: center; padding: 20px;">No active rooms. Create or join one above.</p>';
         return;
       }
       
@@ -487,8 +525,8 @@
         const div = document.createElement('div');
         div.className = 'saved-chat-item';
         div.innerHTML = `
-          <span style="font-weight: 600; color: var(--text-primary);">💬 Room: ${code}</span>
-          <span style="font-size: 0.8rem; color: var(--accent);">Join →</span>
+          <span style="font-weight: 600; font-family: monospace; font-size: 1.1rem; color: #e2e8f0;">${code}</span>
+          <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-1); background: rgba(139, 92, 246, 0.1); padding: 6px 12px; border-radius: 12px;">Enter ➔</span>
         `;
         div.onclick = () => attemptJoinChat(code);
         els.myChatsList.appendChild(div);
@@ -498,17 +536,12 @@
 
   document.getElementById('create-chat-btn').addEventListener('click', async () => {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    
-    // Write directly into textylabs node
     await set(ref(db, `textylabs/chats/${code}/metadata`), {
       ownerUid: currentUser.uid,
       textingEnabled: true,
       createdAt: Date.now()
     });
-    
-    // Save to user's personal chat list
     await set(ref(db, `textylabs/users/${currentUser.uid}/chats/${code}`), { joinedAt: Date.now() });
-
     joinChatRoom(code, { ownerUid: currentUser.uid, textingEnabled: true });
   });
 
@@ -525,28 +558,19 @@
   async function attemptJoinChat(code) {
     const snap = await get(ref(db, `textylabs/chats/${code}/metadata`));
     if (!snap.exists()) {
-      showToast("Room not found or deleted!");
-      // Clean up dead room from user's list if it exists
+      showToast("Room not found or deleted");
       remove(ref(db, `textylabs/users/${currentUser.uid}/chats/${code}`));
       return;
     }
-    
-    // Save to user's personal chat list (in case they joined manually via code)
     await set(ref(db, `textylabs/users/${currentUser.uid}/chats/${code}`), { joinedAt: Date.now() });
-    
     joinChatRoom(code, snap.val());
   }
 
   // --- CHAT ROOM LOGIC ---
   function joinChatRoom(code, metadata) {
     currentChatId = code;
-    els.joinInput.value = ''; // Clear input for next time
-    
-    els.dashSec.classList.add('hidden');
-    els.chatSec.classList.remove('hidden');
-    
-    // Explicitly unhide chat-sec flex layout
-    els.chatSec.style.display = 'flex'; 
+    els.joinInput.value = '';
+    switchView(els.chatSec);
     
     els.chatCodeDisplay.textContent = code;
     els.chatBox.innerHTML = '';
@@ -554,13 +578,9 @@
     const isSystemAdmin = ADMIN_EMAILS.includes(currentUser.email.toLowerCase());
     const isOwner = currentUser.uid === metadata.ownerUid || isSystemAdmin;
 
-    if (isOwner) {
-      els.ownerControls.classList.remove('hidden');
-    } else {
-      els.ownerControls.classList.add('hidden');
-    }
+    if (isOwner) els.ownerControls.classList.remove('hidden');
+    else els.ownerControls.classList.add('hidden');
 
-    // Unsubscribe existing listeners
     if (chatMetaUnsub) chatMetaUnsub();
     if (chatMsgUnsub) chatMsgUnsub();
 
@@ -568,7 +588,7 @@
     chatMetaUnsub = onValue(ref(db, `textylabs/chats/${code}/metadata`), (snapshot) => {
       const data = snapshot.val();
       if (!data) {
-        showToast("Room was deleted by the owner.");
+        showToast("Room was deleted by owner.");
         leaveChat();
         return;
       }
@@ -592,7 +612,6 @@
         const div = document.createElement('div');
         const isMe = msg.uid === currentUser.uid;
         
-        // Format timestamp
         const date = new Date(msg.timestamp);
         const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
@@ -600,11 +619,10 @@
         div.innerHTML = `
           ${!isMe ? `<div class="msg-sender">${escapeHTML(msg.sender)}</div>` : ''}
           <div>${escapeHTML(msg.text)}</div>
-          <span class="msg-time">${timeStr}</span>
+          <span class="msg-time" style="color: ${isMe ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)'}">${timeStr}</span>
         `;
         els.chatBox.appendChild(div);
       });
-      // Smooth scroll to bottom
       els.chatBox.scrollTop = els.chatBox.scrollHeight;
     });
   }
@@ -634,16 +652,13 @@
     if (chatMetaUnsub) chatMetaUnsub();
     if (chatMsgUnsub) chatMsgUnsub();
     currentChatId = null;
-    els.chatSec.classList.add('hidden');
-    els.chatSec.style.display = 'none';
-    els.dashSec.classList.remove('hidden');
+    switchView(els.dashSec);
   }
 
   // Owner Controls
   document.getElementById('delete-chat-btn').addEventListener('click', async () => {
-    if (confirm("Delete this group chat for everyone?")) {
+    if (confirm("Permanently delete this room for everyone?")) {
       await remove(ref(db, `textylabs/chats/${currentChatId}`));
-      // Remove from user's personal list as well
       await remove(ref(db, `textylabs/users/${currentUser.uid}/chats/${currentChatId}`));
       leaveChat();
     }
@@ -659,7 +674,7 @@
   // Copy Code Click
   els.chatCodeDisplay.addEventListener('click', () => {
     navigator.clipboard.writeText(currentChatId);
-    showToast("Code copied to clipboard!");
+    showToast("Code copied!");
   });
 
   // Helpers
