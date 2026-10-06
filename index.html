@@ -1,1 +1,272 @@
-coming tonight! Textlabs powered by Nexus. Textnexus.me 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TextyLabs</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f4f4f9; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .hidden { display: none !important; }
+    button { background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 5px 0; }
+    button:hover { background: #0056b3; }
+    input { padding: 8px; margin: 5px 0; width: calc(100% - 20px); border: 1px solid #ccc; border-radius: 4px; }
+    #chat-box { height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin-bottom: 10px; background: #fafafa; }
+    .message { margin-bottom: 8px; padding: 8px; background: #e9ecef; border-radius: 4px; }
+    .owner-controls, .admin-panel { margin-top: 20px; padding: 15px; border-radius: 4px; }
+    .owner-controls { background: #fff3cd; border: 1px solid #ffe69c; }
+    .admin-panel { background: #d1e7dd; border: 1px solid #a3cfbb; }
+    .danger-btn { background: #dc3545; }
+    .danger-btn:hover { background: #bb2d3b; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>TextyLabs 🧪</h1>
+
+  <!-- LOGIN SECTION -->
+  <div id="login-section">
+    <p>Sign in to start chatting.</p>
+    <button id="login-btn">Sign in with Google</button>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <div id="dashboard-section" class="hidden">
+    <p>Welcome, <span id="user-name"></span>! <button id="logout-btn" style="float: right;">Logout</button></p>
+    
+    <div class="admin-panel hidden" id="admin-panel">
+      <h3>👑 System Admin Panel</h3>
+      <p>Welcome to the top-secret admin area. Only authorized emails can see this.</p>
+      <!-- Add global admin tools here later -->
+    </div>
+
+    <hr>
+    <h3>Create a Group Chat</h3>
+    <button id="create-chat-btn">Generate New Chat Code</button>
+    <p id="created-code-display"></p>
+
+    <h3>Join a Group Chat</h3>
+    <input type="text" id="join-code-input" placeholder="Enter 6-digit chat code">
+    <button id="join-chat-btn">Join Chat</button>
+  </div>
+
+  <!-- CHAT ROOM -->
+  <div id="chat-section" class="hidden">
+    <button id="leave-chat-btn">🔙 Back to Dashboard</button>
+    <h2 id="chat-title">Chat Room: <span id="current-chat-code"></span></h2>
+    
+    <div class="owner-controls hidden" id="owner-controls">
+      <strong>👑 Chat Owner Controls:</strong>
+      <button id="toggle-texting-btn">Disable Texting</button>
+      <button id="delete-chat-btn" class="danger-btn">Delete Group Chat</button>
+    </div>
+
+    <div id="chat-box"></div>
+    <p id="texting-disabled-msg" class="hidden" style="color: red;">The owner has disabled texting in this chat.</p>
+    
+    <div id="message-input-area">
+      <input type="text" id="message-input" placeholder="Type a message...">
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FIREBASE LOGIC -->
+<script type="module">
+  // Import Firebase v9/v10 via CDN
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+  // Your specific Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyAO_ffupJOIMPE9m4ARtaqSzC1vGDkIAco",
+    authDomain: "nexus-web-development-official.firebaseapp.com",
+    databaseURL: "https://nexus-web-development-official-default-rtdb.firebaseio.com",
+    projectId: "nexus-web-development-official",
+    storageBucket: "nexus-web-development-official.firebasestorage.app",
+    messagingSenderId: "553556577139",
+    appId: "1:553556577139:web:ea4469b06c2c01cc999306"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  // App State
+  let currentUser = null;
+  let currentChatId = null;
+  let chatListener = null;
+
+  // The allowed admin emails (Assumed @gmail.com for Brody, adjust if it's different!)
+  const ADMIN_EMAILS = [
+    "jcruz016@stpaul.k12.mn.us",
+    "brodywilliams0226@gmail.com" 
+  ];
+
+  // DOM Elements
+  const els = {
+    loginSec: document.getElementById('login-section'),
+    dashSec: document.getElementById('dashboard-section'),
+    chatSec: document.getElementById('chat-section'),
+    adminPanel: document.getElementById('admin-panel'),
+    userName: document.getElementById('user-name'),
+    chatBox: document.getElementById('chat-box'),
+    msgInput: document.getElementById('message-input'),
+    ownerControls: document.getElementById('owner-controls'),
+    toggleTextingBtn: document.getElementById('toggle-texting-btn'),
+    textingDisabledMsg: document.getElementById('texting-disabled-msg'),
+    msgInputArea: document.getElementById('message-input-area')
+  };
+
+  // --- AUTHENTICATION ---
+  document.getElementById('login-btn').addEventListener('click', () => {
+    signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    signOut(auth);
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      els.loginSec.classList.add('hidden');
+      els.dashSec.classList.remove('hidden');
+      els.chatSec.classList.add('hidden');
+      els.userName.textContent = user.displayName;
+
+      // Show admin panel if email matches
+      if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+        els.adminPanel.classList.remove('hidden');
+      } else {
+        els.adminPanel.classList.add('hidden');
+      }
+    } else {
+      currentUser = null;
+      els.loginSec.classList.remove('hidden');
+      els.dashSec.classList.add('hidden');
+      els.chatSec.classList.add('hidden');
+    }
+  });
+
+  // --- DASHBOARD ACTIONS ---
+  document.getElementById('create-chat-btn').addEventListener('click', async () => {
+    // Generate a random 6-character code
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    // Save to Firebase
+    await set(ref(db, 'chats/' + code + '/metadata'), {
+      ownerUid: currentUser.uid,
+      textingEnabled: true,
+      createdAt: Date.now()
+    });
+
+    document.getElementById('created-code-display').innerText = `Created! Your code is: ${code}`;
+  });
+
+  document.getElementById('join-chat-btn').addEventListener('click', async () => {
+    const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+    if (!code) return alert("Enter a code!");
+
+    // Check if chat exists
+    const chatSnap = await get(ref(db, 'chats/' + code + '/metadata'));
+    if (!chatSnap.exists()) return alert("Chat not found!");
+
+    joinChatRoom(code, chatSnap.val());
+  });
+
+  // --- CHAT ROOM LOGIC ---
+  function joinChatRoom(code, metadata) {
+    currentChatId = code;
+    els.dashSec.classList.add('hidden');
+    els.chatSec.classList.remove('hidden');
+    document.getElementById('current-chat-code').textContent = code;
+    els.chatBox.innerHTML = '';
+
+    // Check Owner Status
+    if (currentUser.uid === metadata.ownerUid) {
+      els.ownerControls.classList.remove('hidden');
+      els.toggleTextingBtn.textContent = metadata.textingEnabled ? "Disable Texting" : "Enable Texting";
+    } else {
+      els.ownerControls.classList.add('hidden');
+    }
+
+    // Listen for metadata changes (like texting being disabled or chat deleted)
+    onValue(ref(db, 'chats/' + code + '/metadata'), (snapshot) => {
+      const data = snapshot.val();
+      if (!data) {
+        alert("This chat was deleted by the owner.");
+        leaveChat();
+        return;
+      }
+      
+      // Update UI based on texting status
+      if (data.textingEnabled) {
+        els.msgInputArea.classList.remove('hidden');
+        els.textingDisabledMsg.classList.add('hidden');
+        els.toggleTextingBtn.textContent = "Disable Texting";
+      } else {
+        els.msgInputArea.classList.add('hidden');
+        els.textingDisabledMsg.classList.remove('hidden');
+        els.toggleTextingBtn.textContent = "Enable Texting";
+      }
+    });
+
+    // Listen for messages
+    if (chatListener) db.ref('chats/' + currentChatId + '/messages').off(); // Cleanup old listener
+    chatListener = onValue(ref(db, 'chats/' + code + '/messages'), (snapshot) => {
+      els.chatBox.innerHTML = '';
+      snapshot.forEach((childSnap) => {
+        const msg = childSnap.val();
+        const div = document.createElement('div');
+        div.className = 'message';
+        div.innerHTML = `<strong>${msg.sender}:</strong> ${msg.text}`;
+        els.chatBox.appendChild(div);
+      });
+      els.chatBox.scrollTop = els.chatBox.scrollHeight;
+    });
+  }
+
+  document.getElementById('send-btn').addEventListener('click', () => {
+    const text = els.msgInput.value.trim();
+    if (!text || !currentChatId) return;
+
+    push(ref(db, 'chats/' + currentChatId + '/messages'), {
+      sender: currentUser.displayName,
+      text: text,
+      timestamp: Date.now()
+    });
+    els.msgInput.value = '';
+  });
+
+  document.getElementById('leave-chat-btn').addEventListener('click', leaveChat);
+  
+  function leaveChat() {
+    currentChatId = null;
+    els.chatSec.classList.add('hidden');
+    els.dashSec.classList.remove('hidden');
+  }
+
+  // --- OWNER ACTIONS ---
+  document.getElementById('delete-chat-btn').addEventListener('click', async () => {
+    if (confirm("Are you sure you want to delete this group chat for everyone?")) {
+      await remove(ref(db, 'chats/' + currentChatId));
+      leaveChat();
+    }
+  });
+
+  document.getElementById('toggle-texting-btn').addEventListener('click', async () => {
+    // Fetch current status and flip it
+    const snap = await get(ref(db, 'chats/' + currentChatId + '/metadata/textingEnabled'));
+    await update(ref(db, 'chats/' + currentChatId + '/metadata'), {
+      textingEnabled: !snap.val()
+    });
+  });
+
+</script>
+</body>
+</html>
